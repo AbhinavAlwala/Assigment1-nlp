@@ -1,23 +1,34 @@
 import os
 import hmm
-import argparse
+import viterbi
 import pandas as pd
-import numpy as np
 
 def evaluate():
     # Paths
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    train_file = os.path.join(base_dir, 'data', 'en_ewt-ud-train.conllu')
-    test_file = os.path.join(base_dir, 'data', 'en_ewt-ud-test.conllu')
-    
+    default_train = os.path.join(base_dir, 'data', 'en_ewt-ud-train.conllu')
+    default_test = os.path.join(base_dir, 'data', 'en_ewt-ud-test.conllu')
+
+    # Fixed defaults (no CLI)
+    train_file = default_train
+    test_file = default_test
+    min_freq = 1
+    alpha = 1e-5
+    rare_threshold = 10
+
     # 1. Train
     print("Training HMM Model...")
-    trans_mat, emit_mat, pi, vocab, tags = hmm.train_hmm(train_file)
+    trans_mat, emit_mat, pi, vocab, tags = hmm.train_hmm(
+        train_file,
+        min_freq=min_freq,
+        alpha=alpha,
+        rare_threshold=rare_threshold,
+    )
     print("Training Complete.")
-    
+
     # 2. Run Viterbi
     print("Running Viterbi on Test Data...")
-    predictions, ground_truth_data = hmm.viterbi_algorithm(trans_mat, emit_mat, pi, test_file, vocab, tags)
+    predictions, ground_truth_data = viterbi.viterbi_algorithm(trans_mat, emit_mat, pi, test_file, vocab, tags)
     
     # 3. Calculate Accuracy
     total_tokens = 0
@@ -57,6 +68,8 @@ def evaluate():
     
     cm = pd.crosstab(df_filtered['True'], df_filtered['Predicted'], normalize='index')
     print(cm.round(2))
+
+    # Note: Saving disabled (no CLI). Edit here if needed.
 
 if __name__ == "__main__":
     evaluate()
