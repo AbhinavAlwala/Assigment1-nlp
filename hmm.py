@@ -49,31 +49,7 @@ def parse_conllu(path):
 
     return sentences
 
-def tokenize(vocab_list):
-    '''
-    Create a mapping from item to integer index.
-    '''
-    # Create dict with indices
-    vocab_map = {vocab_list[i]: i for i in range(len(vocab_list))}
-    if '<UNK>' not in vocab_map:
-        vocab_map['<UNK>'] = len(vocab_map)
-    return vocab_map
 
-def get_tokenized_data(sentence_data, tokenized_vocab, tokenized_tags):
-    '''
-    Converts list of (word, tag) tuples to list of [word_idx, tag_idx] lists.
-    '''
-    new_data = []
-    unk_idx = tokenized_vocab['<UNK>']
-    
-    for sent in sentence_data:
-        new_sent = []
-        for word, tag in sent:
-            w_idx = tokenized_vocab.get(word, unk_idx)
-            t_idx = tokenized_tags.get(tag, -1)
-            new_sent.append([w_idx, t_idx])
-        new_data.append(new_sent)
-    return new_data
 
 
 # --- Preprocessing & Token Handling ---
